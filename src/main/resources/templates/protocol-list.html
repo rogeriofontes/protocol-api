@@ -16,6 +16,11 @@
     <div class="card">
         <div class="card-body">
             <div th:switch="${protocols}" class="container my-5">
+                <p class="my-5">
+                    <a th:href="@{/protocols/add}" class="btn btn-primary"><i
+                            class="fas fa-user-plus ml-2"> Add Protocolo </i></a>
+                </p>
+                <div th:if="${message}" th:text="${message}" th:class="${'alert ' + alertClass}"/>
                 <div class="col-md-12">
                     <h2 th:case="null">Não existe protocolo!</h2>
                     <div th:case="*">

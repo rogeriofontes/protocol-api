@@ -70,6 +70,7 @@ public class ProtocolServiceImpl implements ProtocolService {
             }
 
             //early return
+            protocol.update(id, protocol);
             return protocolRepository.save(protocol);
         } else {
             return null;
