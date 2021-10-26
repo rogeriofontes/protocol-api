@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -12,7 +13,7 @@
 
 <body>
 <span th:text="${bemVindo}"></span>
-
+<h2>Welcome <span sec:authentication="name"></span> | <a onclick="document.forms['logoutForm'].submit()">Logout</a></h2>
 <a href="#" class="btn btn-danger btn-lg" role="button" th:href="@{/protocols}"><span
         class="glyphicon glyphicon-list-alt"></span> <br/>Lista de Protocolos</a>
 </body>

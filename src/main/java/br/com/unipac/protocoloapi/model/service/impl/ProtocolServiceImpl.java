@@ -1,6 +1,7 @@
 package br.com.unipac.protocoloapi.model.service.impl;
 
 import br.com.unipac.protocoloapi.model.domain.Protocol;
+import br.com.unipac.protocoloapi.model.domain.User;
 import br.com.unipac.protocoloapi.model.repositories.ProtocolRepository;
 import br.com.unipac.protocoloapi.model.service.ProtocolService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
