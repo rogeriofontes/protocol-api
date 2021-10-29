@@ -92,4 +92,10 @@ public class ProtocolServiceImpl implements ProtocolService {
     public Long count() {
         return protocolRepository.count();
     }
+
+    @Override
+    public List<Protocol> findAllByName(String name, int pageNumber, int size) {
+        PageRequest pagination = PageRequest.of(pageNumber, size);
+        return protocolRepository.findAllByName(name, pagination);
+    }
 }

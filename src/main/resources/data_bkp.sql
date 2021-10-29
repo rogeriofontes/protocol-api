@@ -1,0 +1,4 @@
+--delete from tb_user_roles where id > 0;
+--delete from tb_role where id > 0;
+--insert into tb_role (id, name) values (1, 'USER');
+--insert into tb_role (id, name) values (2, 'ADMIN');

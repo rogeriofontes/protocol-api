@@ -8,6 +8,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
+import java.util.Optional;
+
 @Component
 public class UserValidator implements Validator {
 
@@ -28,7 +30,8 @@ public class UserValidator implements Validator {
             errors.rejectValue("username", "Size.userForm.username");
         }
 
-        if (userService.findByUsername(user.getUsername()) != null) {
+        Optional<User> foundedUser = userService.findByUsername(user.getUsername());
+        if (foundedUser.isPresent()) {
             errors.rejectValue("username", "Duplicate.userForm.username");
         }
 
