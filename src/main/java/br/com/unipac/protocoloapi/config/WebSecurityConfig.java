@@ -38,6 +38,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .permitAll();
+
+
+        //Configuracao para api rest com basic authentication
+       /* http
+                .csrf().disable()
+                .authorizeRequests().anyRequest().authenticated()
+                .and()
+                .httpBasic(); */
     }
 
     @Bean
