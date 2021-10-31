@@ -1,4 +1,4 @@
-package br.com.unipac.protocoloapi.controller;
+package br.com.unipac.protocoloapi.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

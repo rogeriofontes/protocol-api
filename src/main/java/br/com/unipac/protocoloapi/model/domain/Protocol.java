@@ -2,10 +2,12 @@ package br.com.unipac.protocoloapi.model.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import org.hibernate.annotations.Cache;
 
 @Entity
 @Table(name = "tb_protocol")
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 @ToString
 @Builder
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Protocol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

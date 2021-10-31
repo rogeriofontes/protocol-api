@@ -1,8 +1,11 @@
 package br.com.unipac.protocoloapi.model.service.impl;
 
 import br.com.unipac.protocoloapi.model.domain.Protocol;
-import br.com.unipac.protocoloapi.model.domain.User;
+import br.com.unipac.protocoloapi.exception.BadResourceException;
+import br.com.unipac.protocoloapi.exception.ResourceAlreadyExistsException;
+import br.com.unipac.protocoloapi.exception.ResourceNotFoundException;
 import br.com.unipac.protocoloapi.model.repositories.ProtocolRepository;
+import br.com.unipac.protocoloapi.model.repositories.specification.ProtocolSpecification;
 import br.com.unipac.protocoloapi.model.service.ProtocolService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -30,59 +33,76 @@ public class ProtocolServiceImpl implements ProtocolService {
     }
 
     @Override
-    public Protocol findById(Long id) {
-        return protocolRepository.findById(id).orElse(null);
+    public Protocol findById(Long id) throws ResourceNotFoundException {
+        Protocol protocol = protocolRepository.findById(id).orElse(null);
+
+        if (Objects.isNull(protocol)) {
+            throw new ResourceNotFoundException("Cannot find Protocol with id: " + id);
+        }
+
+        return protocol;
     }
 
     @Override
-    public List<Protocol> findAll(int pageNumber, int rowPerPage) {
-        List<Protocol> protocolList = new ArrayList<>();
-
+    public List<Protocol> findAll(int pageNumber, int rowPerPage) throws ResourceNotFoundException {
         Pageable sortedByIdAsc = PageRequest.of(pageNumber - 1, rowPerPage, Sort.by("id").ascending());
-        protocolRepository.findAll(sortedByIdAsc).forEach(protocolList::add);
+        List<Protocol> protocolList = protocolRepository.findAll(sortedByIdAsc).getContent();
 
-        /*Page<Protocol> all = protocolRepository.findAll(sortedByIdAsc);
-        for (Protocol p: all) {
-            protocolList.add(p);
-        }*/
+        if (protocolList.isEmpty()) {
+            throw new ResourceNotFoundException("Cannot find Protocols: " + protocolList.size());
+        }
+
         return protocolList;
     }
 
     @Override
-    public Protocol save(Protocol protocol) {
+    public List<Protocol> findAllByName(String name, int pageNumber, int size) {
+        Protocol filter = Protocol.builder().name(name).build();
+        Specification<Protocol> spec = new ProtocolSpecification(filter);
+
+        PageRequest pagination = PageRequest.of(pageNumber, size);
+        return protocolRepository.findAll(spec, pagination).getContent();
+    }
+
+    @Override
+    public Protocol save(Protocol protocol) throws ResourceAlreadyExistsException, BadResourceException {
         if (!StringUtils.isEmpty(protocol.getName())) {
+
             if (protocol.getId() != null && existsById(protocol.getId())) {
-                log.info("Esse id já existe na nossa base");
-                return null;
-            } else {
-                return protocolRepository.save(protocol);
+                throw new ResourceAlreadyExistsException("Contact with id: " + protocol.getId() +
+                        " already exists");
             }
+
+            return protocolRepository.save(protocol);
         } else {
-            return null;
+            BadResourceException exc = new BadResourceException("Failed to save protocol");
+            exc.addErrorMessage("Protocol is null or empty");
+            throw exc;
         }
     }
 
     @Override
-    public Protocol update(Long id, Protocol protocol) {
+    public Protocol update(Long id, Protocol protocol) throws ResourceNotFoundException, BadResourceException {
         boolean protocolExists = existsById(id);
         if (!StringUtils.isEmpty(protocol.getName())) {
+
             if (!protocolExists) {
-                log.info("Esse id nao existe na nossa base");
-                return null;
+                throw new ResourceNotFoundException("Cannot find Contact with id: " + protocol.getId());
             }
 
-            //early return
             protocol.update(id, protocol);
             return protocolRepository.save(protocol);
         } else {
-            return null;
+            BadResourceException exc = new BadResourceException("Failed to save protocol");
+            exc.addErrorMessage("Protocol is null or empty");
+            throw exc;
         }
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws ResourceNotFoundException {
         if (!existsById(id)) {
-            log.info("Esse id nao existe na nossa base");
+            throw new ResourceNotFoundException("Cannot find contact with id: " + id);
         }
 
         protocolRepository.deleteById(id);
@@ -93,9 +113,5 @@ public class ProtocolServiceImpl implements ProtocolService {
         return protocolRepository.count();
     }
 
-    @Override
-    public List<Protocol> findAllByName(String name, int pageNumber, int size) {
-        PageRequest pagination = PageRequest.of(pageNumber, size);
-        return protocolRepository.findAllByName(name, pagination);
-    }
+
 }

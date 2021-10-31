@@ -1,6 +1,9 @@
-package br.com.unipac.protocoloapi.controller;
+package br.com.unipac.protocoloapi.web.controller;
 
 import br.com.unipac.protocoloapi.model.domain.Protocol;
+import br.com.unipac.protocoloapi.exception.BadResourceException;
+import br.com.unipac.protocoloapi.exception.ResourceAlreadyExistsException;
+import br.com.unipac.protocoloapi.exception.ResourceNotFoundException;
 import br.com.unipac.protocoloapi.model.service.ProtocolService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,7 @@ public class ProtocolController {
     private final int ROW_PER_PAGE = 10;
 
     @GetMapping
-    public String getAll(Model model, @RequestParam(value = "page", defaultValue = "1") int pageNumber) {
+    public String getAll(Model model, @RequestParam(value = "page", defaultValue = "1") int pageNumber) throws ResourceNotFoundException {
         List<Protocol> protocolList = protocolService.findAll(pageNumber, ROW_PER_PAGE);
 
         Long count = protocolService.count();
@@ -42,7 +45,7 @@ public class ProtocolController {
     }
 
     @GetMapping(value = "{protocolId}")
-    public String getById(Model model, @PathVariable Long protocolId) {
+    public String getById(Model model, @PathVariable Long protocolId) throws ResourceNotFoundException {
         Protocol savedProtocol = protocolService.findById(protocolId);
         model.addAttribute("protocol", savedProtocol);
         model.addAttribute("allowDelete", false);
@@ -57,7 +60,7 @@ public class ProtocolController {
     }
 
     @PostMapping(value = "/add")
-    public String add(@Valid @ModelAttribute("protocol") Protocol protocol, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String add(@Valid @ModelAttribute("protocol") Protocol protocol, BindingResult result, RedirectAttributes redirectAttributes) throws BadResourceException, ResourceAlreadyExistsException {
 
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("message", "Houve erros no cadastro");
@@ -72,7 +75,7 @@ public class ProtocolController {
     }
 
     @GetMapping(value = "/{protocolId}/edit")
-    public String showEdit(Model model, @PathVariable("protocolId") Long protocolId) {
+    public String showEdit(Model model, @PathVariable("protocolId") Long protocolId) throws ResourceNotFoundException {
         Protocol savedProtocol = protocolService.findById(protocolId);
 
         model.addAttribute("protocol", savedProtocol);
@@ -81,7 +84,7 @@ public class ProtocolController {
     }
 
     @PostMapping(value = "/{protocolId}/update")
-    public String update(@PathVariable("protocolId") Long protocolId, @Valid @ModelAttribute("protocol") Protocol protoco, Model model, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String update(@PathVariable("protocolId") Long protocolId, @Valid @ModelAttribute("protocol") Protocol protoco, Model model, BindingResult result, RedirectAttributes redirectAttributes) throws ResourceNotFoundException, BadResourceException {
 
         if (result.hasErrors()) {
             Protocol savedProtocol = protocolService.findById(protocolId);
@@ -100,7 +103,7 @@ public class ProtocolController {
     }
 
     @GetMapping(value = "/{protocolId}/delete")
-    public String delete(@PathVariable("protocolId") Long protocolId, RedirectAttributes redirectAttributes) {
+    public String delete(@PathVariable("protocolId") Long protocolId, RedirectAttributes redirectAttributes) throws ResourceNotFoundException {
         protocolService.deleteById(protocolId);
 
         redirectAttributes.addFlashAttribute("message", "Dados Deletados com sucesso!");

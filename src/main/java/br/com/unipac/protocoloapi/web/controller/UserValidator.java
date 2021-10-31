@@ -1,4 +1,4 @@
-package br.com.unipac.protocoloapi.controller;
+package br.com.unipac.protocoloapi.web.controller;
 
 import br.com.unipac.protocoloapi.model.domain.User;
 import br.com.unipac.protocoloapi.model.service.UserService;
